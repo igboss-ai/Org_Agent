@@ -54,7 +54,15 @@ Prints ready-to-run `CREATE POLICY` statements. Add `--out policies.sql` to writ
 org-agent audit --database-url "postgres://..."
 ```
 
-Connects read-only to your Postgres database and reports, table by table, whether RLS is enabled and how many policies exist. Exits with a non-zero status if any table has RLS off, so it can be used as a CI check.
+Connects read-only to your Postgres database and reports, table by table, whether RLS is enabled and how many policies exist.
+
+Each line is marked with one of three icons:
+
+- `✓` — RLS is on and at least one policy exists. Looks fine.
+- `✗` — RLS is completely off. Any client can read or write every row in that table.
+- `⚠` — RLS is on but has **zero** policies. This is easy to miss by eye (it looks "protected" because RLS is enabled) but it silently blocks all access to the table, which is very likely not what you intended.
+
+The command exits with a non-zero status if either `✗` or `⚠` appears anywhere, so it can be dropped into a CI pipeline to fail a build automatically when a table's security posture changes unexpectedly.
 
 ### 4. Diff config against reality
 

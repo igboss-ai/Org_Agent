@@ -3,7 +3,7 @@ import { Command } from 'commander';
 import { writeFileSync } from 'node:fs';
 import { loadConfig } from './parseConfig';
 import { generateSql } from './generateSql';
-import { auditDatabase } from './audit';
+import { auditDatabase, classifyRlsStatus } from './audit';
 import { diffConfigAgainstDatabase } from './diff';
 
 const program = new Command();
@@ -34,15 +34,19 @@ program
   .requiredOption('-d, --database-url <url>', 'Postgres connection string (read-only recommended)')
   .action(async (opts) => {
     const status = await auditDatabase(opts.databaseUrl);
-    const unprotected = status.filter((s) => !s.rlsEnabled);
+    let hasProblem = false;
 
     for (const table of status) {
-      const icon = table.rlsEnabled ? '✓' : '✗';
-      console.log(`${icon} ${table.table} — RLS ${table.rlsEnabled ? 'ON' : 'OFF'}, ${table.policies.length} polic${table.policies.length === 1 ? 'y' : 'ies'}`);
+      const { icon, note, severity } = classifyRlsStatus(table);
+      if (severity !== 'ok') hasProblem = true;
+      const suffix = note ? `  ← ${note}` : '';
+      console.log(
+        `${icon} ${table.table} — RLS ${table.rlsEnabled ? 'ON' : 'OFF'}, ${table.policies.length} polic${table.policies.length === 1 ? 'y' : 'ies'}${suffix}`
+      );
     }
 
-    if (unprotected.length > 0) {
-      console.error(`\n${unprotected.length} table(s) without Row Level Security enabled.`);
+    if (hasProblem) {
+      console.error(`\nSome tables need attention — see ⚠ and ✗ above.`);
       process.exitCode = 1;
     }
   });
