@@ -1,0 +1,22 @@
+# Example org-agent config.
+# Each table lists the column that identifies its owner (if any)
+# and which role is allowed to perform each action.
+
+tables:
+  expenses:
+    owner_column: user_id
+    rules:
+      select: owner
+      insert: owner
+      update: owner
+      delete: owner
+
+  categories:
+    rules:
+      select: authenticated
+      insert: admin_only
+      update: admin_only
+
+  public_announcements:
+    rules:
+      select: public

@@ -1,0 +1,40 @@
+{
+  "name": "org-agent",
+  "version": "0.1.0",
+  "description": "A CLI that generates Supabase Row Level Security policies from a readable config file, and audits your live database to find tables with missing or drifted policies.",
+  "type": "module",
+  "bin": {
+    "org-agent": "./dist/cli.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/cli.ts --format esm --dts",
+    "test": "vitest run",
+    "lint": "tsc --noEmit"
+  },
+  "keywords": [
+    "supabase",
+    "rls",
+    "row-level-security",
+    "cli",
+    "postgres",
+    "security"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "yaml": "^2.4.0",
+    "pg": "^8.11.0",
+    "commander": "^12.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.0",
+    "tsup": "^8.0.0",
+    "vitest": "^1.4.0",
+    "@types/node": "^20.11.0",
+    "@types/pg": "^8.11.0"
+  }
+}
